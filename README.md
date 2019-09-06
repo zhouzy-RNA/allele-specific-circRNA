@@ -72,7 +72,7 @@ perl samprocess.pl -input_sam xxx.chr.x.sam -output_reformed xxx.chr.x.sam.refor
 	-output_invalidreads 	### output
 
 
-step seven. statisticscomplex.pl	### 
+step seven. statisticscomplex.pl	### generate the information of snp in reads about its position to genome (absolute pos) or gene (relative pos) and the back splicing site position
 
 perl statisticscomplex.pl -input_pair circRNAmRNA_pair.numberid.txt -input_sam xxx.chr.x.sam.reformed -input_snp xxx.vcf -input_mRNA_simple_bed kept_longest_mRNAs.1_x.NewNumberID.bed -output_reformed xxx.chr.x.readscoverjuncsnp -chr x
 
@@ -84,3 +84,12 @@ perl statisticscomplex.pl -input_pair circRNAmRNA_pair.numberid.txt -input_sam x
 	-chr 		### chromosome number
 
 
+step eight. statisticby_pairAndSnp.pl	### the statistic result of ref or alt and the number of linear RNA and circRNA of 
+each.
+
+perl statisticby_pairAndSnp.pl -input_hitnode xxx.chr.x.readscoverjuncsnp -input_sample xxx -input_chromosome x -output_statistic xxx.x.statistic
+
+		-input_hitnode		### the output of step eight
+		-input_simple		### simple name
+		-input_chromosome 	### chromosome number
+		-output_statistic 	### output contains simple name, chromosome number, snp pos, ref, alt, junction pos, mRNA id, circRNA id, linear mRNA ref number, linear mRNA alt number, circRNA ref number, circRNA alt number, valid or invalid
