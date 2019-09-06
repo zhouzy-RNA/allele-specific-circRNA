@@ -1,15 +1,15 @@
 use strict;
 use warnings;
 
-my ($input_hitnode, $input_sample, $input_chromosome, $output_statistic);
+my ($input_hitnode, $input_simple, $input_chromosome, $output_statistic);
 my @a=@ARGV;
 if(@a==8){
 	for(my $i=0; $i < @a; $i+=2){
 		if($a[$i] eq "-input_hitnode"){
 			$input_hitnode=$a[$i+1];
 		}
-		if($a[$i] eq "-input_sample"){
-			$input_sample=$a[$i+1];
+		if($a[$i] eq "-input_simple"){
+			$input_simple=$a[$i+1];
 		}
 		if($a[$i] eq "-input_chromosome"){
 			$input_chromosome=$a[$i+1];
@@ -20,7 +20,7 @@ if(@a==8){
 	}
 }
 else{
-	print "perl statisticby_pairAndSnp.pl -input_hitnode test.readscoverjuncsnp -input_sample XXX  -input_chromosome  1  -output_statistic test.statistic.out\n";
+	print "perl statisticby_pairAndSnp.pl -input_hitnode test.readscoverjuncsnp -input_simple XXX  -input_chromosome  1  -output_statistic test.statistic.out\n";
 	exit();
 }
 
@@ -132,9 +132,9 @@ for(my $x=0; $x < $pairandsnpnum; $x++){
 	my $t1=$n1+$n2;
 	my $t2=$n3+$n4;
 	if($n1+$n2>0 && $n3+$n4>0 && $n1+$n3>0 && $n2+$n4>0){	
-		print A "$input_sample\t$input_chromosome\t$pairandsnp{$x}{\"snp_pos\"}\t$pairandsnp{$x}{\"snp_ref\"}\t$pairandsnp{$x}{\"snp_alt\"}\t$pairandsnp{$x}{\"junction\"}\t$pairandsnp{$x}{\"mRNAid\"}\t$pairandsnp{$x}{\"circRNAid\"}\t$n1\t$n2\t$n3\t$n4\t$t1\t$t2\tVALID\n";
+		print A "$input_simple\t$input_chromosome\t$pairandsnp{$x}{\"snp_pos\"}\t$pairandsnp{$x}{\"snp_ref\"}\t$pairandsnp{$x}{\"snp_alt\"}\t$pairandsnp{$x}{\"junction\"}\t$pairandsnp{$x}{\"mRNAid\"}\t$pairandsnp{$x}{\"circRNAid\"}\t$n1\t$n2\t$n3\t$n4\t$t1\t$t2\tVALID\n";
 	}else{
-		print A "$input_sample\t$input_chromosome\t$pairandsnp{$x}{\"snp_pos\"}\t$pairandsnp{$x}{\"snp_ref\"}\t$pairandsnp{$x}{\"snp_alt\"}\t$pairandsnp{$x}{\"junction\"}\t$pairandsnp{$x}{\"mRNAid\"}\t$pairandsnp{$x}{\"circRNAid\"}\t$n1\t$n2\t$n3\t$n4\t$t1\t$t2\tINVALID\n";
+		print A "$input_simple\t$input_chromosome\t$pairandsnp{$x}{\"snp_pos\"}\t$pairandsnp{$x}{\"snp_ref\"}\t$pairandsnp{$x}{\"snp_alt\"}\t$pairandsnp{$x}{\"junction\"}\t$pairandsnp{$x}{\"mRNAid\"}\t$pairandsnp{$x}{\"circRNAid\"}\t$n1\t$n2\t$n3\t$n4\t$t1\t$t2\tINVALID\n";
 	}
 }
 
