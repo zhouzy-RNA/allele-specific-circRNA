@@ -6,7 +6,7 @@
 
 ## usage
 
-### step one. FastaGenomeToNewFormat.pl    
+### `step one`. FastaGenomeToNewFormat.pl    
 #### transform each chromsome of the reference genome to one row
 
 	perl FastaGenomeToNewFormat.pl -origin_fasta xxx.fa -seq1row_fasta xxx.fa.1row
