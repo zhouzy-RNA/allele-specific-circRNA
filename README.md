@@ -6,6 +6,9 @@
 
 
 ## usage
+
+#### note: XXX represents file name, x in chrx represent the numnber of chromosome (1 to 22)
+
 ### step one. FastaGenomeToNewFormat.pl
 
 #### transform each chromsome of the reference genome to one row
@@ -20,7 +23,7 @@
 
 #### this step need the vcf files you called or downlod from the website to masked the snp with "N". 
 
-	perl GenomeSequenceMaskN.pl -input_genome xxx.fa.1row -input_snp xxx.vcf -output_maskedgenome xxx.masked.fa.1row
+	perl GenomeSequenceMaskN.pl -input_genome xxx.fa.1row -input_snp chrx_overlapping.chr_posit.vcf -output_maskedgenome xxx.masked.fa.1row
 
 		-input_genome    ### the step one output
 		-input_snp     ### this vcf file recording chromosome number, snp position, rs number, ref snp, alt snp.
@@ -50,14 +53,14 @@
 
 ##### genrate the required vcf
 
-	grep -v "^#"  chrx_rlapping.vcf | awk '{print $1"\t"$2"\t"$3"\t"$4"\t"$5;}' | awk '{if(length($4)==1 && length($5)==1) {print $0;}}' > chrxoverlapping.chr_posit.vcf
+	grep -v "^#"  chrx_rlapping.vcf | awk '{print $1"\t"$2"\t"$3"\t"$4"\t"$5;}' | awk '{if(length($4)==1 && length($5)==1) {print $0;}}' > chrx_overlapping.chr_posit.vcf
 
 
 ### step three. circRNA_mRNA_pairs.pl	
 
 #### utilize the gtf file and the output of CIRI2.pl, which is used to  authenticate ciriRNA, to generate the gtf file of circRNA and the file about the information of circRNA and the most length mRNA piared with it. 
  
-	perl circRNA_mRNA_pairs.pl -input_linear_gtf  xxx.protein_coding.exons.gtf -input_circRNAs   xxx.circ -output_circRNA_gtf circRNAs.gtf -output_circRNAmRNA_pair  circRNAmRNA_pair -minus_small2large $minus_small2large
+	perl circRNA_mRNA_pairs.pl -input_linear_gtf  xxx.protein_coding.exons.gtf -input_circRNAs   merged.all.circ.temp4 -output_circRNA_gtf circRNAs.gtf -output_circRNAmRNA_pair  circRNAmRNA_pair -minus_small2large $minus_small2large
 
 		-input_linear_gtf	### only contain the line that contain "exon" and "protein_coding"
 		-input_circRNAs		### this file contains circRNA_ID, chr, circRNA_start, circRNA_end, circRNA_type, gene_id and strand.
@@ -70,19 +73,32 @@
 ##### generate the required reference gtf
 
 	sed -n '6,$p' xxx.f | awk '$3 == "exon"{print $0}' |   \
-  sed 's/transcript_version.*exon_number/exon_number/g' |  \
-  sed 's/gene_version.*transcript_id/transcript_id/g' | grep "protein_coding" \
-  > ${reference_gtf_path}/${reference_gtf_file_name}.protein_coding.exons.gtf
+	sed 's/transcript_version.*exon_number/exon_number/g' |  \
+ 	sed 's/gene_version.*transcript_id/transcript_id/g' | grep "protein_coding" \
+ 	> xxx.protein_coding.exons.gtf
 
+##### generate the required input_circRNAs
+	
+	cat human.ciri2.xxx.out >> merged.all.circ.temp		### human.ciri2.xxx.out is the output of CIRI2.pl
+	
+	awk 'BEGIN { OFS="\t"} { print $1"\t"$2"\t"$3"\t"$4"\t"$9"\t"$10"\t"$11;  }' merged.all.circ.temp \
+ 	| awk '$5 == "exon" {print $0;}' | sed 's/"\t"//g' | sed 's/:/_/g'| sed 's/|/_/g' \
+	 | awk '{if ($7 == "+") {print $1"_plus""\t"$2"\t"$3"\t"$4"\t"$5"\t"$6"\t"$7;} \
+	 else {print $1"_minus""\t"$2"\t"$3"\t"$4"\t"$5"\t"$6"\t"$7;}}' \
+	 > merged.all.circ.temp2
 
+	cat ${output_file_path}/output/merged.all.circ.temp2 | LC_ALL=C  sort -k1,1  | \
+	uniq > merged.all.circ.temp3
 
+	awk ' $2 ~ /^[123456789]/' ${output_file_path}/output/merged.all.circ.temp3 \
+	> merged.all.circ.temp4
 
 
 	
 ### step four. ExtractTranscriptSequence.pl ConcatExons.pl splice_linear_from_circRNA.pl	
-#### this three scripts are used to  generate the transcript fasta according to the masked genome. Run the third sciript only if the transcript is circRNA. Before this you need to rename the transcript according to the chromosome and the order of the transcript position, both the mRNA and circRNA.
+#### this three scripts are used to  generate the transcript fasta according to the masked genome. Run the third sciript only if the transcript is circRNA. 
 
-	perl ExtractTranscriptSequence.pl -genome xxx.masked.fa.1row -transcript xxx.NewNumberID.bed.sorted.txt -output xxx.transcript.temp
+	perl ExtractTranscriptSequence.pl -genome xxx.chrx.masked.fa.1row -transcript xxx.NewNumberID.bed -output xxx.transcript.temp
 
 		-genome 	### generate from the precondition of step four
 		-transcript 	### this circRNA's file can generate from the gtf of circRNA, the mRNA's file can generate from the gtf and the circRNAmRNA_pair, containing chromosome number, RNA_start, RNA_end, strand, RNA name, exon number, like "1 100906852 100906965 + 1000001 1"
@@ -104,10 +120,51 @@
 
 	for((i=1;i<=${chr_num};i++));
 	do
-		sed -n "$[i*2-1],$[i*2]p" xxx.fa.1row >xxx.chrx.fa.1row;
+		sed -n "$[i*2-1],$[i*2]p" xxx.masked.fa.1row >xxx.chrx.masked.fa.1row;
 	done
+##### generate the circRNA's bed
+
+	grep -v "^#"  ${output_file_path}/output/circRNAs.gtf | \
+ 	awk 'BEGIN {FS="\t";OFS="\t";} $3 == "exon" {print $1"\t"$4"\t"$5"\t"$7"\t"$9;}'  \
+	| sed 's/ //g'  \
+	| sed 's/gene_id.*ranscript_id//g' \
+	| sed 's/transcript_version.*exon_number//g' \
+	| sed 's/;gene_name.*//g' \
+	| sed 's/\"//g' \
+	| sed 's/;/\t/g' | sed 's/exon_number//g' \
+	> circRNAs.bed
+	
+	awk 'BEGIN { OFS="\t"}  $1 ~ /^[123456789]/{print}' circRNAs.bed > circRNAs.1_22.bed
+	
+##### generate the mRNA's bed
+
+	awk '{print $2;}' circRNAmRNA_pair | sort | uniq > final.mRNA.IDs
+	
+	awk 'BEGIN { OFS="\t"} NR==FNR{a[$1]++};NR>FNR&&a[$5]{print}' final.mRNA.IDs \
+	xxx.protein_coding.exons.bed >kept_longest_mRNAs.1_22.bed
+	
+##### generate the new transcript ID
+	
+	cat ${output_file_path}/output/kept_longest_mRNAs.1_22.bed \
+	circRNAs.1_22.bed  \
+	| awk '{ print $1"\t"$5; }' | LANG=C sort | uniq > merged.circ.mRNA.temp001
+
+	awk 'BEGIN { OFS = "\t" } {if ($1 ~ /^[123456789]/)  print  $1*1000000+NR"\t"$1"\t"$2;}' merged.circ.mRNA.temp001 \
+	> merged.circ.mRNA.new.transcriptID
+
+##### generate new transcript ID bed
+
+	awk 'BEGIN { OFS="\t"} NR==FNR{a[$3]=$1};NR>FNR{$5=a[$5];print}' \
+	merged.circ.mRNA.new.transcriptID kept_longest_mRNAs.1_22.bed >kept_longest_mRNAs.1_22.NewNumberID.bed
 
 
+	awk 'BEGIN { OFS="\t"} NR==FNR{a[$3]=$1};NR>FNR{$5=a[$5];print}' \
+	merged.circ.mRNA.new.transcriptID circRNAs.1_22bed >circRNAs.1_22.NewNumberID.bed
+
+	sort -k5,5n -k6,6n circRNAs.1_22.NewNumberID.bed >circRNAs.1_22.NewNumberID.bed.sorted.txt
+	
+	mv circRNAs.1_22.NewNumberID.bed.sorted.txt circRNAs.1_22.NewNumberID.bed
+	
 
 ### step five. sam_pairedend_isvalid.pl	
 #### extract the paired reads from the bam generated by the raw data and the transcript fasta.
@@ -118,7 +175,6 @@
 		-input_sam   ### sorted sam
 		-output_validreads   ### valid reads
 		-output_invalidreads 	### invalid reads
-
 
 ### step six. samprocess.pl		
 #### merge the paired reads to form one reads
