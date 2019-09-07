@@ -1,12 +1,13 @@
 # allele-specific-circRNA
 
-### This repository is used to authenticate allele specific ciriRNA in organism.
+#### This repository is used to authenticate allele specific ciriRNA in organism.
 
-### the total ten scripts are related. The latter script may use the output of the foregoing, when you use this repository, be care for the order.
+#### the total ten scripts are related. The latter script may use the output of the foregoing, when you use this repository, be care for the order.
 
-##usage
+## usage
 
-###step one. FastaGenomeToNewFormat.pl    ### transform each chromsome of the reference genome to one row
+### step one. FastaGenomeToNewFormat.pl    
+	transform each chromsome of the reference genome to one row
 
 perl FastaGenomeToNewFormat.pl -origin_fasta xxx.fa -seq1row_fasta xxx.fa.1row
 
@@ -14,7 +15,8 @@ perl FastaGenomeToNewFormat.pl -origin_fasta xxx.fa -seq1row_fasta xxx.fa.1row
 	-seq1row_fasta   ### output file
     
   
-step two. GenomeSequenceMaskN.pl   ### this step need the vcf files you called or downlod from the website to masked the snp with "N". 
+### step two. GenomeSequenceMaskN.pl   
+	this step need the vcf files you called or downlod from the website to masked the snp with "N". 
 
 # mask snp
 perl GenomeSequenceMaskN.pl -input_genome xxx.fa.1row -input_snp xxx.vcf -output_maskedgenome xxx.masked.fa.1row
