@@ -5,7 +5,6 @@
 #### the total ten scripts are related. The latter script may use the output of the foregoing, when you use this repository, be care for the order.
 
 
-
 ## usage
 ### step one. FastaGenomeToNewFormat.pl
 
@@ -18,6 +17,7 @@
     
   
 ### step two. GenomeSequenceMaskN.pl   
+
 #### this step need the vcf files you called or downlod from the website to masked the snp with "N". 
 
 	perl GenomeSequenceMaskN.pl -input_genome xxx.fa.1row -input_snp xxx.vcf -output_maskedgenome xxx.masked.fa.1row
@@ -27,24 +27,34 @@
 		-output_maskedgenome	### output file name
 
 #### the precondition of step two
+	
+##### sort the reference vcf
 
-##### split chromosome
-	for((i=1;i<=${chr_num};i++));
-	do
-		sed -n "$[i*2-1],$[i*2]p" xxx.fa.1row >xxx.chrx.fa.1row;
-	done
+	vcf-sort -c xxx.vcf >xxx.sort.vcf
+	
+##### convert the sorted reference vcf
 
-##### extract the overlop of the reference vcf and the vcf you called and filtered
+	cat xxx.sort.vcf | vcf-convert -v 4.1 -r xxx.fa >xxx.new.vcf
+	
+##### compress the comverted vcf
 
-	vcf-isec -a -f -n +2 xxx.vcf.gz xxx.new.vcf.gz chrx_overlapping.vcf
+	bgzip -c xxx.new.vcf >xxx.new.vcf.gz
+	
+##### index
 
+	tabix -p vcf xxx.new.vcf.gz
+	
+##### extract the overlop of the compressed reference vcf and the vcf you called by chromose, which also need to compress and index
 
+	vcf-isec -a -f -n +2 hard_filter_chrx.vcf.gz xxx.new.vcf.gz >chrx_overlapping.vcf
 
+##### genrate the required vcf
 
-
+	grep -v "^#"  chrx_rlapping.vcf | awk '{print $1"\t"$2"\t"$3"\t"$4"\t"$5;}' | awk '{if(length($4)==1 && length($5)==1) {print $0;}}' > chrxoverlapping.chr_posit.vcf
 
 
 ### step three. circRNA_mRNA_pairs.pl	
+
 #### utilize the gtf file and the output of CIRI2.pl, which is used to  authenticate ciriRNA, to generate the gtf file of circRNA and the file about the information of circRNA and the most length mRNA piared with it. 
  
 	perl circRNA_mRNA_pairs.pl -input_linear_gtf  xxx.protein_coding.exons.gtf -input_circRNAs   xxx.circ -output_circRNA_gtf circRNAs.gtf -output_circRNAmRNA_pair  circRNAmRNA_pair -minus_small2large $minus_small2large
@@ -54,14 +64,27 @@
 		-output_circRNA_gtf	### this file is simalar to the input_linear_gtf
 		-output_circRNAmRNA_pair	### this file contains circRNA name, mRNA name, junct_start, junct_end, strand, mRNA_start, mRNA_end, mRNA_length, circRNA_start, circRNA_end, circRNA_length, chromosome number.
 		-minus_small2large 	### 0 or 1, when minus strand of the gtf is large to samll, like gtf for ensembl, minus_small2large is 1, otherwise minus_small2large is 0
-	
+
+#### the precondition of step three
+
+##### generate the required reference gtf
+
+	sed -n '6,$p' xxx.f | awk '$3 == "exon"{print $0}' |   \
+  sed 's/transcript_version.*exon_number/exon_number/g' |  \
+  sed 's/gene_version.*transcript_id/transcript_id/g' | grep "protein_coding" \
+  > ${reference_gtf_path}/${reference_gtf_file_name}.protein_coding.exons.gtf
+
+
+
+
+
 	
 ### step four. ExtractTranscriptSequence.pl ConcatExons.pl splice_linear_from_circRNA.pl	
 #### this three scripts are used to  generate the transcript fasta according to the masked genome. Run the third sciript only if the transcript is circRNA. Before this you need to rename the transcript according to the chromosome and the order of the transcript position, both the mRNA and circRNA.
 
 	perl ExtractTranscriptSequence.pl -genome xxx.masked.fa.1row -transcript xxx.NewNumberID.bed.sorted.txt -output xxx.transcript.temp
 
-		-genome 	### masked genome according to step one
+		-genome 	### generate from the precondition of step four
 		-transcript 	### this circRNA's file can generate from the gtf of circRNA, the mRNA's file can generate from the gtf and the circRNAmRNA_pair, containing chromosome number, RNA_start, RNA_end, strand, RNA name, exon number, like "1 100906852 100906965 + 1000001 1"
 		-output xxx.transcript.temp	### output
 	
@@ -74,6 +97,16 @@
 
 		-input_circRNA_seq	### the output of splice_linear_from_circRNA.pl
 		-output_linear_seq  	### output
+
+#### the precondition of step four
+
+##### split the masked reference genome
+
+	for((i=1;i<=${chr_num};i++));
+	do
+		sed -n "$[i*2-1],$[i*2]p" xxx.fa.1row >xxx.chrx.fa.1row;
+	done
+
 
 
 ### step five. sam_pairedend_isvalid.pl	
