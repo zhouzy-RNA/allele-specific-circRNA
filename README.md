@@ -1,4 +1,4 @@
-# allele-specific-circRNA
+#allele-specific-circRNA
 
 This repository is used to authenticate allele specific ciriRNA in organism.
 
@@ -16,11 +16,29 @@ perl FastaGenomeToNewFormat.pl -origin_fasta xxx.fa -seq1row_fasta xxx.fa.1row
   
 step two. GenomeSequenceMaskN.pl   ### this step need the vcf files you called or downlod from the website to masked the snp with "N". 
 
+# mask snp
 perl GenomeSequenceMaskN.pl -input_genome xxx.fa.1row -input_snp xxx.vcf -output_maskedgenome xxx.masked.fa.1row
 
 	-input_genome    ### the step one output
 	-input_snp     ### this vcf file recording chromosome number, snp position, rs number, ref snp, alt snp.
 	-output_maskedgenome	### output file name
+
+## the precondition of step two
+
+# split chromosome
+for((i=1;i<=${chr_num};i++));
+do
+	sed -n "$[i*2-1],$[i*2]p" xxx.fa.1row >xxx.chrx.fa.1row;
+done
+
+# extract the overlop of the reference vcf and the vcf you called and filtered
+
+vcf-isec -a -f -n +2 xxx.vcf.gz xxx.new.vcf.gz chrx_overlapping.vcf
+
+
+
+
+
 
 
 step three. circRNA_mRNA_pairs.pl	### utilize the gtf file and the output of CIRI2.pl, which is used to  authenticate ciriRNA, to generate the gtf file of circRNA and the file about the information of circRNA and the most length mRNA piared with it. 
