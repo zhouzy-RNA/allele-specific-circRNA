@@ -7,7 +7,7 @@
 ## usage
 
 ### step one. FastaGenomeToNewFormat.pl    
-	transform each chromsome of the reference genome to one row
+####transform each chromsome of the reference genome to one row
 
 perl FastaGenomeToNewFormat.pl -origin_fasta xxx.fa -seq1row_fasta xxx.fa.1row
 
@@ -16,24 +16,23 @@ perl FastaGenomeToNewFormat.pl -origin_fasta xxx.fa -seq1row_fasta xxx.fa.1row
     
   
 ### step two. GenomeSequenceMaskN.pl   
-	this step need the vcf files you called or downlod from the website to masked the snp with "N". 
+####this step need the vcf files you called or downlod from the website to masked the snp with "N". 
 
-# mask snp
 perl GenomeSequenceMaskN.pl -input_genome xxx.fa.1row -input_snp xxx.vcf -output_maskedgenome xxx.masked.fa.1row
 
 	-input_genome    ### the step one output
 	-input_snp     ### this vcf file recording chromosome number, snp position, rs number, ref snp, alt snp.
 	-output_maskedgenome	### output file name
 
-## the precondition of step two
+#### the precondition of step two
 
-# split chromosome
-for((i=1;i<=${chr_num};i++));
-do
-	sed -n "$[i*2-1],$[i*2]p" xxx.fa.1row >xxx.chrx.fa.1row;
-done
+###### split chromosome
+	for((i=1;i<=${chr_num};i++));
+	do
+		sed -n "$[i*2-1],$[i*2]p" xxx.fa.1row >xxx.chrx.fa.1row;
+	done
 
-# extract the overlop of the reference vcf and the vcf you called and filtered
+##### extract the overlop of the reference vcf and the vcf you called and filtered
 
 vcf-isec -a -f -n +2 xxx.vcf.gz xxx.new.vcf.gz chrx_overlapping.vcf
 
