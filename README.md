@@ -5,6 +5,7 @@
 #### the total ten scripts are related. The latter script may use the output of the foregoing, when you use this repository, be care for the order.
 
 - ![#f03c15](https://placehold.it/15/f03c15/000000?text=+) `#f03c15` 
+<font color=red size=5>gray</font>
 
 ## usage
 
