@@ -8,7 +8,7 @@
 
 ## usage
 ```diff
-### `step one`. FastaGenomeToNewFormat.pl    
+### step one. FastaGenomeToNewFormat.pl    
 ```
 #### transform each chromsome of the reference genome to one row
 
