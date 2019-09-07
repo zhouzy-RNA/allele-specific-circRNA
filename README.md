@@ -4,15 +4,11 @@
 
 #### the total ten scripts are related. The latter script may use the output of the foregoing, when you use this repository, be care for the order.
 
-- ![#f03c15](https://placehold.it/15/f03c15/000000?text=+) `#f03c15` 
 
-```diff
-+ abc
-```
 
 ## usage
 
-### `step one`. FastaGenomeToNewFormat.pl    
+### ```diff step one```. FastaGenomeToNewFormat.pl    
 #### transform each chromsome of the reference genome to one row
 
 	perl FastaGenomeToNewFormat.pl -origin_fasta xxx.fa -seq1row_fasta xxx.fa.1row
