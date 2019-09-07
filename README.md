@@ -1,12 +1,12 @@
-#allele-specific-circRNA
+# allele-specific-circRNA
 
-This repository is used to authenticate allele specific ciriRNA in organism.
+### This repository is used to authenticate allele specific ciriRNA in organism.
 
-the total ten scripts are related. The latter script may use the output of the foregoing, when you use this repository, be care for the order.
+### the total ten scripts are related. The latter script may use the output of the foregoing, when you use this repository, be care for the order.
 
-usage
+##usage
 
-step one. FastaGenomeToNewFormat.pl    ### transform each chromsome of the reference genome to one row
+###step one. FastaGenomeToNewFormat.pl    ### transform each chromsome of the reference genome to one row
 
 perl FastaGenomeToNewFormat.pl -origin_fasta xxx.fa -seq1row_fasta xxx.fa.1row
 
