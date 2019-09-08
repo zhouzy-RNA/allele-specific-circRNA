@@ -7,7 +7,7 @@
 
 ## usage
 
-#### note: XXX represents file name, x in chrx represent the numnber of chromosome (1 to 22)
+#### note: XXX represents file name. X in chrx or the sole x represent the numnber of chromosome (1 to 22). Before you run the script, please read the precondition of each step.
 
 ### step one. FastaGenomeToNewFormat.pl
 
