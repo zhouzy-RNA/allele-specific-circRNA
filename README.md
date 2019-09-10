@@ -23,12 +23,6 @@
 
 #### this step need the vcf files you called or downlod from the website to masked the snp with "N". 
 
-	perl GenomeSequenceMaskN.pl -input_genome xxx.fa.1row -input_snp chrx_overlapping.chr_posit.vcf -output_maskedgenome xxx.masked.fa.1row
-
-		-input_genome    ### the step one output
-		-input_snp     ### this vcf file recording chromosome number, snp position, rs number, ref snp, alt snp.
-		-output_maskedgenome	### output file name
-
 #### the precondition of step two
 	
 ##### sort the reference vcf
@@ -54,19 +48,18 @@
 ##### genrate the required vcf
 
 	grep -v "^#"  chrx_rlapping.vcf | awk '{print $1"\t"$2"\t"$3"\t"$4"\t"$5;}' | awk '{if(length($4)==1 && length($5)==1) {print $0;}}' > chrx_overlapping.chr_posit.vcf
+	
+
+	perl GenomeSequenceMaskN.pl -input_genome xxx.fa.1row -input_snp chrx_overlapping.chr_posit.vcf -output_maskedgenome xxx.masked.fa.1row
+
+		-input_genome    ### the step one output
+		-input_snp     ### this vcf file recording chromosome number, snp position, rs number, ref snp, alt snp.
+		-output_maskedgenome	### output file name
 
 
 ### step three. circRNA_mRNA_pairs.pl	
 
 #### utilize the gtf file and the output of CIRI2.pl, which is used to  authenticate ciriRNA, to generate the gtf file of circRNA and the file about the information of circRNA and the most length mRNA piared with it. 
- 
-	perl circRNA_mRNA_pairs.pl -input_linear_gtf  xxx.protein_coding.exons.gtf -input_circRNAs   merged.all.circ.temp4 -output_circRNA_gtf circRNAs.gtf -output_circRNAmRNA_pair  circRNAmRNA_pair -minus_small2large $minus_small2large
-
-		-input_linear_gtf	### only contain the line that contain "exon" and "protein_coding"
-		-input_circRNAs		### this file contains circRNA_ID, chr, circRNA_start, circRNA_end, circRNA_type, gene_id and strand.
-		-output_circRNA_gtf	### this file is simalar to the input_linear_gtf
-		-output_circRNAmRNA_pair	### this file contains circRNA name, mRNA name, junct_start, junct_end, strand, mRNA_start, mRNA_end, mRNA_length, circRNA_start, circRNA_end, circRNA_length, chromosome number.
-		-minus_small2large 	### 0 or 1, when minus strand of the gtf is large to samll, like gtf for ensembl, minus_small2large is 1, otherwise minus_small2large is 0
 
 #### the precondition of step three
 
@@ -92,28 +85,20 @@
 
 	awk ' $2 ~ /^[123456789]/' ${output_file_path}/output/merged.all.circ.temp3 \
 	> merged.all.circ.temp4
+ 
+ 
+	perl circRNA_mRNA_pairs.pl -input_linear_gtf  xxx.protein_coding.exons.gtf -input_circRNAs   merged.all.circ.temp4 -output_circRNA_gtf circRNAs.gtf -output_circRNAmRNA_pair  circRNAmRNA_pair -minus_small2large $minus_small2large
 
+		-input_linear_gtf	### only contain the line that contain "exon" and "protein_coding"
+		-input_circRNAs		### this file contains circRNA_ID, chr, circRNA_start, circRNA_end, circRNA_type, gene_id and strand.
+		-output_circRNA_gtf	### this file is simalar to the input_linear_gtf
+		-output_circRNAmRNA_pair	### this file contains circRNA name, mRNA name, junct_start, junct_end, strand, mRNA_start, mRNA_end, mRNA_length, circRNA_start, circRNA_end, circRNA_length, chromosome number.
+		-minus_small2large 	### 0 or 1, when minus strand of the gtf is large to samll, like gtf for ensembl, minus_small2large is 1, otherwise minus_small2large is 0
 
 	
 ### step four. ExtractTranscriptSequence.pl ConcatExons.pl splice_linear_from_circRNA.pl
 
 #### this three scripts are used to  generate the transcript fasta according to the masked genome. Run the third sciript only if the transcript is circRNA. 
-
-	perl ExtractTranscriptSequence.pl -genome xxx.chrx.masked.fa.1row -transcript xxx.NewNumberID.bed -output xxx.transcript.temp
-
-		-genome 	### generate from the precondition of step four
-		-transcript 	### this circRNA's file can generate from the gtf of circRNA, the mRNA's file can generate from the gtf and the circRNAmRNA_pair, containing chromosome number, RNA_start, RNA_end, strand, RNA name, exon number, like "1 100906852 100906965 + 1000001 1"
-		-output xxx.transcript.temp	### output
-	
-	perl ConcatExons.pl -input_fasta xxx.transcript.temp -output  xxx.NewNumberID.transcript.fa 
-
-		-input_fasta 	### the output of the ExtractTranscriptSequence.pl 
-		-output  	### output
-	
-	perl splice_linear_from_circRNA.pl  -input_circRNA_seq  xxx.NewNumberID.transcript.fa -output_linear_seq  circRNA.linear.NewNumberID.transcript.fa
-
-		-input_circRNA_seq	### the output of splice_linear_from_circRNA.pl
-		-output_linear_seq  	### output
 
 #### the precondition of step four
 
@@ -167,16 +152,26 @@
 	mv circRNAs.1_22.NewNumberID.bed.sorted.txt circRNAs.1_22.NewNumberID.bed
 	
 
+	perl ExtractTranscriptSequence.pl -genome xxx.chrx.masked.fa.1row -transcript xxx.NewNumberID.bed -output xxx.transcript.temp
+
+		-genome 	### generate from the precondition of step four
+		-transcript 	### this circRNA's file can generate from the gtf of circRNA, the mRNA's file can generate from the gtf and the circRNAmRNA_pair, containing chromosome number, RNA_start, RNA_end, strand, RNA name, exon number, like "1 100906852 100906965 + 1000001 1"
+		-output xxx.transcript.temp	### output
+	
+	perl ConcatExons.pl -input_fasta xxx.transcript.temp -output  xxx.NewNumberID.transcript.fa 
+
+		-input_fasta 	### the output of the ExtractTranscriptSequence.pl 
+		-output  	### output
+	
+	perl splice_linear_from_circRNA.pl  -input_circRNA_seq  xxx.NewNumberID.transcript.fa -output_linear_seq  circRNA.linear.NewNumberID.transcript.fa
+
+		-input_circRNA_seq	### the output of splice_linear_from_circRNA.pl
+		-output_linear_seq  	### output
+	
+
 ### step five. sam_pairedend_isvalid.pl	
 
 #### extract the paired reads from the bam generated by the raw data and the transcript fasta.
-
-	perl sam_pairedend_isvalid.pl  -input_sam   xxx.NumberID.sorted.sam.temp_noheader -output_validreads   xxx.NumberID.sorted.validpairs.sam -output_invalidreads xxx.NumberID.sorted.invalidpairs
-
-
-		-input_sam   ### sam file
-		-output_validreads   ### valid reads
-		-output_invalidreads 	### invalid reads
 
 #### the precondition of step five
 
@@ -197,17 +192,19 @@
 	samtools view -h -o bowtie2_xxx.NumberID.sorted.sam bowtie2_xxx.NumberID.sorted.bam
 
 	grep -v "^@" bowtie2_xxx.NumberID.sorted.sam  > bowtie2_xxx.NumberID.sorted.sam.temp_noheader
+	
+
+	perl sam_pairedend_isvalid.pl  -input_sam   xxx.NumberID.sorted.sam.temp_noheader -output_validreads   xxx.NumberID.sorted.validpairs.sam -output_invalidreads xxx.NumberID.sorted.invalidpairs
+
+
+		-input_sam   ### sam file
+		-output_validreads   ### valid reads
+		-output_invalidreads 	### invalid reads
 
 
 ### step six. samprocess.pl	
 
 #### merge the paired reads to form one reads
-
-	perl samprocess.pl -input_sam xxx.chr.x.sam -output_reformed xxx.chr.x.sam.reformed -output_invalidreads xxx.chr.x.sam.invalidreads
-
-		-input_sam 	### the sam splited according to chromosome
-		-output_reformed 	### the merged reads
-		-output_invalidreads 	### output
 
 #### the precondition of step six
 
@@ -217,21 +214,18 @@
 		awk ' $3 >= '${i}'000000 && $3 <= '${i}'999999 { print $0; } '  \
 		bowtie2.xxx.NumberID.sorted.validpairs.sam > bowtie2.xxx.chr.x.sam
 	done
+	
+
+	perl samprocess.pl -input_sam xxx.chr.x.sam -output_reformed xxx.chr.x.sam.reformed -output_invalidreads xxx.chr.x.sam.invalidreads
+
+		-input_sam 	### the sam splited according to chromosome
+		-output_reformed 	### the merged reads
+		-output_invalidreads 	### output
 
 
 ### step seven. statisticscomplex.pl	
 
 #### generate the information of snp in reads about its position to genome (absolute pos) or gene (relative pos) and the back splicing site position
-
-	perl statisticscomplex.pl -input_pair circRNAmRNA_pair.numberid.txt -input_sam xxx.chr.x.sam.reformed -input_snp xxx.vcf -input_mRNA_simple_bed kept_longest_mRNAs.1_x.NewNumberID.bed -output_reformed xxx.chr.x.readscoverjuncsnp -chr x
-
-		-input_pair	### the one of output files of step three (circRNAmRNA_pair). (renamed the transcript)
-		-input_sam 	### the output of the step six. 
-		-input_snp  	### this vcf is same as the second step 
-		-input_mRNA_simple_bed 	### the mRNA bed is same as the forth step
-		-output_reformed 	### this output contains hitmRNA or hitcircRNA, hitRNA name, reads name, circRNA id, mRNA id, snp position, snp relative position, ref anp, slt snp, re number, current bp,   junction relative, read absolute start, read absolute end, read start relative, read end relative, strand, cover junction absolute, merged read
-		-chr 		### chromosome number
-
 
 #### the precondition of step seven
 
@@ -253,9 +247,26 @@
 		-output_statistic 	### output contains simple name, chromosome number, snp pos, ref, alt, junction pos, mRNA id, circRNA id, linear mRNA ref number, linear mRNA alt number, circRNA ref number, circRNA alt number, valid or invalid
 		
 
+	perl statisticscomplex.pl -input_pair circRNAmRNA_pair.numberid.txt -input_sam xxx.chr.x.sam.reformed -input_snp xxx.vcf -input_mRNA_simple_bed kept_longest_mRNAs.1_x.NewNumberID.bed -output_reformed xxx.chr.x.readscoverjuncsnp -chr x
+
+		-input_pair	### the one of output files of step three (circRNAmRNA_pair). (renamed the transcript)
+		-input_sam 	### the output of the step six. 
+		-input_snp  	### this vcf is same as the second step 
+		-input_mRNA_simple_bed 	### the mRNA bed is same as the forth step
+		-output_reformed 	### this output contains hitmRNA or hitcircRNA, hitRNA name, reads name, circRNA id, mRNA id, snp position, snp relative position, ref anp, slt snp, re number, current bp,   junction relative, read absolute start, read absolute end, read start relative, read end relative, strand, cover junction absolute, merged read
+		-chr 		### chromosome number
+		
+
 ### step nine. oddsratio.R
 
 #### generate the valid oddsrate of ecah snp
+
+#### the precondition of step seven
+
+##### merge all statistic file of each simple
+	
+	cat xxx.*.statistic > xxx.statistic
+	
 	
 	Rscript ${perl_script_path}/oddsratio.R xxx output
 	
@@ -263,11 +274,3 @@
 	| LANG=C sort  | awk -F, '{arr[$1]++}END{for (a in arr) print a, arr[a]}' \
 	| sort  -k1,1n -k2,2n >xxx.valid.oddsratio.final
 	
-#### the precondition of step seven
-
-##### merge all statistic file of each simple
-	
-	cat xxx.*.statistic > xxx.statistic
-	
-
-
