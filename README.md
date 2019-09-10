@@ -13,10 +13,10 @@
 
 #### transform each chromsome of the reference genome to one row
 
-	perl FastaGenomeToNewFormat.pl -origin_fasta xxx.fa -seq1row_fasta xxx.fa.1row
+	`perl FastaGenomeToNewFormat.pl -origin_fasta xxx.fa -seq1row_fasta xxx.fa.1row
 
 		-origin_fasta  ###   the reference genome
-		-seq1row_fasta   ### output file
+		-seq1row_fasta   ### output file`
     
   
 ### step two. GenomeSequenceMaskN.pl   
