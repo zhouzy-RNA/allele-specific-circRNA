@@ -49,7 +49,7 @@
 
 	grep -v "^#"  chrx_rlapping.vcf | awk '{print $1"\t"$2"\t"$3"\t"$4"\t"$5;}' | awk '{if(length($4)==1 && length($5)==1) {print $0;}}' > chrx_overlapping.chr_posit.vcf
 	
- ##### `the perl script`
+ #### `the perl script`
 
 	perl GenomeSequenceMaskN.pl -input_genome xxx.fa.1row -input_snp chrx_overlapping.chr_posit.vcf -output_maskedgenome xxx.masked.fa.1row
 
@@ -87,7 +87,7 @@
 	awk ' $2 ~ /^[123456789]/' ${output_file_path}/output/merged.all.circ.temp3 \
 	> merged.all.circ.temp4
  
- ##### `the perl script`
+ #### `the perl script`
  
 	perl circRNA_mRNA_pairs.pl -input_linear_gtf  xxx.protein_coding.exons.gtf -input_circRNAs   merged.all.circ.temp4 -output_circRNA_gtf circRNAs.gtf -output_circRNAmRNA_pair  circRNAmRNA_pair -minus_small2large 0
 
@@ -154,7 +154,7 @@
 	
 	mv circRNAs.1_22.NewNumberID.bed.sorted.txt circRNAs.1_22.NewNumberID.bed
 	
- ##### `the perl script`
+ #### `the perl script`
 
 	perl ExtractTranscriptSequence.pl -genome xxx.chrx.masked.fa.1row -transcript xxx.NewNumberID.bed -output xxx.transcript.temp
 
@@ -197,7 +197,8 @@
 
 	grep -v "^@" bowtie2_xxx.NumberID.sorted.sam  > bowtie2_xxx.NumberID.sorted.sam.temp_noheader
 	
-
+ #### `the perl script`
+ 
 	perl sam_pairedend_isvalid.pl  -input_sam   xxx.NumberID.sorted.sam.temp_noheader -output_validreads   xxx.NumberID.sorted.validpairs.sam -output_invalidreads xxx.NumberID.sorted.invalidpairs
 
 
@@ -219,7 +220,7 @@
 		bowtie2.xxx.NumberID.sorted.validpairs.sam > bowtie2.xxx.chr.x.sam
 	done
 	
- ##### `the perl script`
+ #### `the perl script`
  
 	perl samprocess.pl -input_sam xxx.chr.x.sam -output_reformed xxx.chr.x.sam.reformed -output_invalidreads xxx.chr.x.sam.invalidreads
 
@@ -272,7 +273,7 @@
 	
 	cat xxx.*.statistic > xxx.statistic
 	
-##### `the R script`	
+#### `the R script`	
 	Rscript ${perl_script_path}/oddsratio.R xxx output
 	
 	grep -v "sample" xxx.statistics.oddsratio.final | awk '$13>1 && $14>1 && $15>1{print $2"_"$3"_"$6"_"$7"_"$8}'  \
