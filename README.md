@@ -21,7 +21,7 @@
   
 ### step two. GenomeSequenceMaskN.pl   
 
-#### this step need the vcf files you called or downlod from the website to masked the snp with "N". 
+#### this step need the vcf files you called and downloded from the website to masked the snp with "N". 
 
 #### the precondition of step two
 	
@@ -201,7 +201,6 @@
  
 	perl sam_pairedend_isvalid.pl  -input_sam   xxx.NumberID.sorted.sam.temp_noheader -output_validreads   xxx.NumberID.sorted.validpairs.sam -output_invalidreads xxx.NumberID.sorted.invalidpairs
 
-
 		-input_sam   ### sam file
 		-output_validreads   ### valid reads
 		-output_invalidreads 	### invalid reads
@@ -239,6 +238,17 @@
 
 	awk 'BEGIN { OFS="\t"} NR==FNR{a[$3]=$1};NR>FNR{$1=a[$1];$2=a[$2];print}' \
 	merged.circ.mRNA.new.transcriptID circRNAmRNA_pair >circRNAmRNA_pair.numberid.txt
+	
+ #### `the perl script`
+ 
+	perl statisticscomplex.pl -input_pair circRNAmRNA_pair.numberid.txt -input_sam xxx.chr.x.sam.reformed -input_snp xxx.vcf -input_mRNA_simple_bed kept_longest_mRNAs.1_x.NewNumberID.bed -output_reformed xxx.chr.x.readscoverjuncsnp -chr x
+
+		-input_pair	### the one of output files of step three (circRNAmRNA_pair). (renamed the transcript)
+		-input_sam 	### the output of the step six. 
+		-input_snp  	### this vcf is same as the second step 
+		-input_mRNA_simple_bed 	### the mRNA bed is same as the forth step
+		-output_reformed 	### this output contains hitmRNA or hitcircRNA, hitRNA name, reads name, circRNA id, mRNA id, snp position, snp relative position, ref anp, slt snp, re number, current bp,   junction relative, read absolute start, read absolute end, read start relative, read end relative, strand, cover junction absolute, merged read
+		-chr 		### chromosome number
 
 
 ### step eight. statisticby_pairAndSnp.pl	
@@ -253,16 +263,6 @@
 		-output_statistic 	### output contains simple name, chromosome number, snp pos, ref, alt, junction pos, mRNA id, circRNA id, linear mRNA ref number, linear mRNA alt number, circRNA ref number, circRNA alt number, valid or invalid
 		
 
-	perl statisticscomplex.pl -input_pair circRNAmRNA_pair.numberid.txt -input_sam xxx.chr.x.sam.reformed -input_snp xxx.vcf -input_mRNA_simple_bed kept_longest_mRNAs.1_x.NewNumberID.bed -output_reformed xxx.chr.x.readscoverjuncsnp -chr x
-
-		-input_pair	### the one of output files of step three (circRNAmRNA_pair). (renamed the transcript)
-		-input_sam 	### the output of the step six. 
-		-input_snp  	### this vcf is same as the second step 
-		-input_mRNA_simple_bed 	### the mRNA bed is same as the forth step
-		-output_reformed 	### this output contains hitmRNA or hitcircRNA, hitRNA name, reads name, circRNA id, mRNA id, snp position, snp relative position, ref anp, slt snp, re number, current bp,   junction relative, read absolute start, read absolute end, read start relative, read end relative, strand, cover junction absolute, merged read
-		-chr 		### chromosome number
-		
-
 ### step nine. oddsratio.R
 
 #### generate the valid oddsrate of ecah snp
@@ -273,7 +273,8 @@
 	
 	cat xxx.*.statistic > xxx.statistic
 	
-#### `the R script`	
+#### `the R script`
+
 	Rscript ${perl_script_path}/oddsratio.R xxx output
 	
 	grep -v "sample" xxx.statistics.oddsratio.final | awk '$13>1 && $14>1 && $15>1{print $2"_"$3"_"$6"_"$7"_"$8}'  \
