@@ -14,7 +14,7 @@
 		-origin_fasta   the reference genome.
 		-seq1row_fasta  the output file.  
   
-###===============================
+### ===============================
 ### Step 2. 
 ### Use the VCF files you called as input and mask SNPs as "N". 
 	
