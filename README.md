@@ -1,7 +1,7 @@
-#Tutorial of a Suite to Identify Allele Specific circRNAs
+# Tutorial of a Suite to Identify Allele Specific circRNAs
 
-#### This repository can be used to identify allele specific circRNAs in organisms.
-#### This repository consists of ten script files. We recommend users to use these script files consequently following our guide.
+### This repository can be used to identify allele specific circRNAs in organisms.
+### This repository consists of ten script files. We recommend users to use these script files consequently following our guide.
 
 
 ## Usage
